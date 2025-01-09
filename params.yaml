@@ -1,0 +1,45 @@
+base:
+  random_state: 42
+  log_level: INFO
+  log_file: '../../reports/app.log'
+
+
+load_data:
+  dataset_csv: "./data/raw/data.csv"
+
+
+featurize:
+  features_path: '../../data/processed/features_embedding.npz'
+  target_column: "Housing"
+  text_column: "text"
+  embedding_model: './models/embedding_model/glove.42B.300d.d2v'
+  embedding_dim: 300
+  subspace_dim: 20
+  min_token_length: 3
+
+
+data_split:
+  test_size: 0.2
+  train_test_split_path: '../../data/processed/train_test_indices.npz'
+
+
+train:
+  hyperparams: # params of GridSearchCV constructor
+    act_fun: 'sigmoid'
+    sigma: 100 # the scaling factor if we use sigmoid function as act_fun
+    num_epochs: 10
+    num_prototypes: 1  # number of prototypes per class
+    num_classes: 2
+    prototype_init_type: 'random'  # 'random' or 'samples'
+    learning_rate_prototypes: 0.05
+    learning_rate_lambda: 0.00001
+
+  model_path: '../../models/trained_models/model.pkl'
+
+
+evaluate:
+  target_names: ['non-housing', 'housing']
+  reports_dir: '../../reports'
+  metrics_file: 'metrics.json'
+  confusion_matrix_image: 'confusion_matrix.png'
+

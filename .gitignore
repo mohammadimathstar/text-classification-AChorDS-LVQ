@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+data/*
+models/embedding_model/*
+models/eviction_model_d50_ps_91.95.npz
+models/model_d50_ps_93.19_forpaper.npz
+
 # C extensions
 *.so
 
