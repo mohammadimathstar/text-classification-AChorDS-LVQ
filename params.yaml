@@ -1,18 +1,18 @@
 base:
   random_state: 42
   log_level: INFO
-  log_file: '../../reports/app.log'
+  log_file: 'reports/app.log'
 
 
 load_data:
-  dataset_csv: "./data/raw/data.csv"
+  dataset_csv: "data/raw/dataset.csv"
 
 
 featurize:
-  features_path: '../../data/processed/features_embedding.npz'
+  features_path: 'data/processed/features_embedding.npz'
   target_column: "Housing"
   text_column: "text"
-  embedding_model: './models/embedding_model/glove.42B.300d.d2v'
+  embedding_model: 'models/embedding_model/glove.42B.300d.d2v'
   embedding_dim: 300
   subspace_dim: 20
   min_token_length: 3
@@ -20,7 +20,7 @@ featurize:
 
 data_split:
   test_size: 0.2
-  train_test_split_path: '../../data/processed/train_test_indices.npz'
+  train_test_split_path: 'data/processed/train_test_indices.npz'
 
 
 train:
@@ -34,12 +34,12 @@ train:
     learning_rate_prototypes: 0.05
     learning_rate_lambda: 0.00001
 
-  model_path: '../../models/trained_models/model.pkl'
+  model_path: 'models/trained_models/model.pkl'
 
 
 evaluate:
   target_names: ['non-housing', 'housing']
-  reports_dir: '../../reports'
+  reports_dir: 'reports'
   metrics_file: 'metrics.json'
   confusion_matrix_image: 'confusion_matrix.png'
 

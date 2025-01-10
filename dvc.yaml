@@ -1,0 +1,35 @@
+
+stages:
+  featurize:
+    cmd: PYTHONPATH=. python src/stages/text_embedding_processing.py --config=params.yaml
+    deps:
+    - models/embedding_model/glove.42B.300d.d2v
+    - data/raw/dataset.csv
+    - src/stages/text_embedding_processing.py
+    outs:
+    - data/processed/features_embedding.npz
+
+  data_split:
+    cmd: PYTHONPATH=. python src/stages/data_split.py --config=params.yaml
+    deps:
+      - data/processed/features_embedding.npz
+      - src/stages/data_split.py
+    params:
+      - base
+      - data_split
+    outs:
+      - data/processed/train_test_indices.npz
+
+  train:
+    cmd: PYTHONPATH=. python src/stages/train.py --config=params.yaml
+    deps:
+      - data/processed/features_embedding.npz
+      - data/processed/train_test_indices.npz
+      - src/stages/train.py
+    params:
+      - base
+      - data_split.train_test_split_path
+      - featurize.features_path
+      - train
+    outs:
+      - models/trained_models/model.pkl

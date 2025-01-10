@@ -1,5 +1,5 @@
 
-import gensim.downloader as gensim_api
+
 from gensim.models import KeyedVectors
 import nltk
 from nltk.corpus import stopwords
@@ -144,7 +144,9 @@ def preprocess_corpus(corpus_text: List[str]) -> Tuple[np.ndarray, np.ndarray]:
 
 
 config = get_config(config_path='./params.yaml')
-logger = get_logger('EMBEDDING', log_level=config['base']['log_level'])
+logger = get_logger('EMBEDDING',
+                    log_level=config['base']['log_level'],
+                    log_file=config['base']['log_file'])
 
 INPUT_DATA_PATH = config['load_data']['dataset_csv']
 PROCESSED_DATA_PATH = config['featurize']['features_path']
