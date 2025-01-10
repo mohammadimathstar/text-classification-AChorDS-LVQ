@@ -168,6 +168,7 @@ labels = df[LABEL_COL].tolist()
 doc_embeddings, _ = preprocess_corpus(corpus)
 
 # Save the embedding subspaces
-os.makedirs(PROCESSED_DATA_PATH, exist_ok=True)
+data_dir = "/".join(PROCESSED_DATA_PATH.split("/")[:-1])
+os.makedirs(data_dir, exist_ok=True)
 np.savez(PROCESSED_DATA_PATH, subspace_embeddings=doc_embeddings, labels=labels)
 logger.info(f"Documents embeddings have been saved in '{PROCESSED_DATA_PATH}'.")

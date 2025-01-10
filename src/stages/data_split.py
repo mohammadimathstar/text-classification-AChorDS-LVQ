@@ -4,6 +4,7 @@ from typing import Text
 import yaml
 
 from src.utils.logs import get_logger
+import argparse
 
 
 def data_split(config_path: Text) -> None:
@@ -46,4 +47,9 @@ def data_split(config_path: Text) -> None:
 
 
 if __name__ == '__main__':
-    data_split('../../params.yaml')
+
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument('--config', dest='config', required=True)
+    args = args_parser.parse_args()
+
+    data_split(config_path=args.config)

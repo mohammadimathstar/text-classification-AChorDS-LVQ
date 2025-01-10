@@ -1,0 +1,86 @@
+schema: '2.0'
+stages:
+  featurize:
+    cmd: PYTHONPATH=. python src/stages/text_embedding_processing.py --config=params.yaml
+    deps:
+    - path: data/raw/dataset.csv
+      hash: md5
+      md5: 583aa4c00b8b30b09b91dac0cf3163c7
+      size: 49648403
+    - path: models/embedding_model/glove.42B.300d.d2v
+      hash: md5
+      md5: 497effd53652ef1ee50c6d9aadc86856
+      size: 55829243
+    - path: src/stages/text_embedding_processing.py
+      hash: md5
+      md5: 7e6305ce591c8c64884cd998bf5d0c9c
+      size: 6379
+    outs:
+    - path: data/processed/features_embedding.npz
+      hash: md5
+      md5: d1f0d789a6c35ad47e91a26c0def1c2e
+      size: 77533456
+  data_split:
+    cmd: PYTHONPATH=. python src/stages/data_split.py --config=params.yaml
+    deps:
+    - path: data/processed/features_embedding.npz
+      hash: md5
+      md5: d1f0d789a6c35ad47e91a26c0def1c2e
+      size: 77533456
+    - path: src/stages/data_split.py
+      hash: md5
+      md5: fdf3da809972ec11a7a80c2e6fc06a0f
+      size: 1754
+    params:
+      params.yaml:
+        base:
+          random_state: 42
+          log_level: INFO
+          log_file: reports/app.log
+        data_split:
+          test_size: 0.2
+          train_test_split_path: data/processed/train_test_indices.npz
+    outs:
+    - path: data/processed/train_test_indices.npz
+      hash: md5
+      md5: 94bc8aa23464126262d0f1027283719d
+      size: 13456
+  train:
+    cmd: PYTHONPATH=. python src/stages/train.py --config=params.yaml
+    deps:
+    - path: data/processed/features_embedding.npz
+      hash: md5
+      md5: d1f0d789a6c35ad47e91a26c0def1c2e
+      size: 77533456
+    - path: data/processed/train_test_indices.npz
+      hash: md5
+      md5: 94bc8aa23464126262d0f1027283719d
+      size: 13456
+    - path: src/stages/train.py
+      hash: md5
+      md5: 6eb6932a96cff635c88fc9199854a7c3
+      size: 1746
+    params:
+      params.yaml:
+        base:
+          random_state: 42
+          log_level: INFO
+          log_file: reports/app.log
+        data_split.train_test_split_path: data/processed/train_test_indices.npz
+        featurize.features_path: data/processed/features_embedding.npz
+        train:
+          hyperparams:
+            act_fun: sigmoid
+            sigma: 100
+            num_epochs: 10
+            num_prototypes: 1
+            num_classes: 2
+            prototype_init_type: random
+            learning_rate_prototypes: 0.05
+            learning_rate_lambda: 1e-05
+          model_path: models/trained_models/model.pkl
+    outs:
+    - path: models/trained_models/model.pkl
+      hash: md5
+      md5: 4803e336033d203dfd9ff2cf91d2f3c2
+      size: 193125

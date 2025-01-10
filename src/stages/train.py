@@ -5,6 +5,7 @@ import yaml
 from src.AChorDSLVQ.training import train
 from src.utils.logs import get_logger
 from src.utils.utils import save_model
+import argparse
 
 
 def train_model(config_path: str) -> None:
@@ -50,4 +51,9 @@ def train_model(config_path: str) -> None:
 
 
 if __name__ == '__main__':
-    train_model('../../params.yaml')
+
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument('--config', dest='config', required=True)
+    args = args_parser.parse_args()
+
+    train_model(config_path=args.config)
