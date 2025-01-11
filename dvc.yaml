@@ -33,3 +33,19 @@ stages:
       - train
     outs:
       - models/trained_models/model.pkl
+
+  evaluate:
+    cmd: PYTHONPATH=. python src/stages/evaluate.py --config=params.yaml
+    deps:
+      - models/trained_models/model.pkl
+      - data/processed/features_embedding.npz
+      - data/processed/train_test_indices.npz
+    params:
+      - base
+      - evaluate
+      - featurize.features_path
+      - data_split.train_test_split_path
+      - train.model_path
+    outs:
+      - reports/confusion_matrix.png
+      - reports/metrics.json

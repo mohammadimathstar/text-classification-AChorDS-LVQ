@@ -84,3 +84,43 @@ stages:
       hash: md5
       md5: 5f267c1eea42cb6f0eee5b354efe4a14
       size: 193125
+  evaluate:
+    cmd: PYTHONPATH=. python src/stages/evaluate.py --config=params.yaml
+    deps:
+    - path: data/processed/features_embedding.npz
+      hash: md5
+      md5: d1f0d789a6c35ad47e91a26c0def1c2e
+      size: 77533456
+    - path: data/processed/train_test_indices.npz
+      hash: md5
+      md5: 94bc8aa23464126262d0f1027283719d
+      size: 13456
+    - path: models/trained_models/model.pkl
+      hash: md5
+      md5: 5f267c1eea42cb6f0eee5b354efe4a14
+      size: 193125
+    params:
+      params.yaml:
+        base:
+          random_state: 42
+          log_level: INFO
+          log_file: reports/app.log
+        data_split.train_test_split_path: data/processed/train_test_indices.npz
+        evaluate:
+          target_names:
+          - non-housing
+          - housing
+          reports_dir: reports
+          metrics_file: metrics.json
+          confusion_matrix_image: confusion_matrix.png
+        featurize.features_path: data/processed/features_embedding.npz
+        train.model_path: models/trained_models/model.pkl
+    outs:
+    - path: reports/confusion_matrix.png
+      hash: md5
+      md5: 39c15f3a6f1aba44aaa8c7e38861a846
+      size: 25147
+    - path: reports/metrics.json
+      hash: md5
+      md5: bd8ae4f6e54794913601f1f9a6c6df0f
+      size: 64

@@ -5,8 +5,9 @@ from sklearn.metrics import confusion_matrix, f1_score, accuracy_score
 from typing import Text, Dict
 import yaml
 import numpy as np
-from src.utils.utils import load_model
+import argparse
 
+from src.utils.utils import load_model
 from src.report.visualization import plot_confusion_matrix
 from src.utils.logs import get_logger
 
@@ -72,9 +73,9 @@ def evaluate_model(config_path: Text) -> None:
 
 
 if __name__ == '__main__':
-    evaluate_model('../../params.yaml')
-#     args_parser = argparse.ArgumentParser()
-#     args_parser.add_argument('--config', dest='config', required=True)
-#     args = args_parser.parse_args()
-#
-#     evaluate_model(config_path=args.config)
+
+    args_parser = argparse.ArgumentParser()
+    args_parser.add_argument('--config', dest='config', required=True)
+    args = args_parser.parse_args()
+
+    evaluate_model(config_path=args.config)
