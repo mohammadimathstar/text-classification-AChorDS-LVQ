@@ -72,15 +72,15 @@ stages:
           hyperparams:
             act_fun: sigmoid
             sigma: 100
-            num_epochs: 10
+            num_epochs: 50
             num_prototypes: 1
             num_classes: 2
             prototype_init_type: random
-            learning_rate_prototypes: 0.05
+            learning_rate_prototypes: 0.01
             learning_rate_lambda: 1e-05
           model_path: models/trained_models/model.pkl
     outs:
     - path: models/trained_models/model.pkl
       hash: md5
-      md5: 4803e336033d203dfd9ff2cf91d2f3c2
+      md5: 5f267c1eea42cb6f0eee5b354efe4a14
       size: 193125
