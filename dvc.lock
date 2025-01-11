@@ -13,8 +13,8 @@ stages:
       size: 55829243
     - path: src/stages/text_embedding_processing.py
       hash: md5
-      md5: 7e6305ce591c8c64884cd998bf5d0c9c
-      size: 6379
+      md5: 45b37b329d73dc0f0404d5cb03414533
+      size: 1846
     outs:
     - path: data/processed/features_embedding.npz
       hash: md5

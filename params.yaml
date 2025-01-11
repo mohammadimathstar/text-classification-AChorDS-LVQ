@@ -43,3 +43,7 @@ evaluate:
   metrics_file: 'metrics.json'
   confusion_matrix_image: 'confusion_matrix.png'
 
+
+explainability:
+  ntops: 10 # number of top words for visualization
+  save_path: 'reports/top_words.csv'

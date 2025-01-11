@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from typing import Tuple
 from sklearn.metrics import confusion_matrix, accuracy_score
 import seaborn as sns
+from typing import Tuple
 
 
 def orthogonalize_data(data_3d: np.ndarray):
@@ -194,6 +195,73 @@ def compute_distances(data: np.ndarray,
     }
 
 
+def find_closest_prototypes_without_label_indices(
+    distances: np.ndarray,
+    prototype_labels: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Find the two closest prototypes with different labels.
+
+    Args:
+        distances (np.ndarray): Calculated distances.
+        prototype_labels (np.ndarray): Labels of prototypes.
+
+    Returns:
+        tuple: Indices of two closest prototypes with different labels.
+    """
+    # Sort indices by distance
+    sorted_indices = np.argsort(distances)
+
+    # Find pairs of indices with different labels
+    sorted_labels = prototype_labels[sorted_indices]
+    sorted_different_label_indices = sorted_indices[np.where(sorted_labels != sorted_labels[0])[0]]
+
+    return sorted_indices[0], sorted_different_label_indices[0]
+
+
+def find_closest_prototypes_without_label(
+    data: np.ndarray,
+    prototypes: np.ndarray,
+    prototype_labels: np.ndarray,
+    relevance: np.ndarray
+) -> Tuple[dict, dict]:
+    """
+    Identify the two closest prototypes with different labels to a given data point.
+
+    Args:
+        data (np.ndarray): Input data point.
+        prototypes (np.ndarray): Prototype subspaces.
+        prototype_labels (np.ndarray): Labels corresponding to prototypes.
+        relevance (np.ndarray): Relevance matrix.
+
+    Returns:
+        dict: Closest prototype.
+        dict: Second closest prototype with a different label.
+    """
+    # Compute distances from the data point to prototypes
+    distance_results = compute_distances(data, prototypes, relevance)
+    distances = distance_results['distance']
+
+    # Find the closest pair of prototypes with different labels
+    nearest_1_index, nearest_2_index = find_closest_prototypes_without_label_indices(distances, prototype_labels)
+
+    def create_prototype_dict(index):
+        return {
+            'index': index,
+            'distance': distances[index],
+            'Q': distance_results['Q'][index],
+            'Qw': distance_results['Qw'][index],
+            'canonical_corr': distance_results['canonical_corr'][index]
+        }
+
+    # Create dictionaries for the closest prototypes
+    closest_1 = create_prototype_dict(nearest_1_index)
+    closest_2 = create_prototype_dict(nearest_2_index)
+
+    return closest_1, closest_2
+
+
+
 def find_closest_prototypes_indices(distances: np.ndarray,
                             label: int,
                             prototype_labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -357,3 +425,11 @@ def load_model(filepath: str):
     with open(filepath, 'rb') as f:
         model = pickle.load(f)
     return model
+
+
+if __name__=='__main__':
+    distances = np.array([0.5, 0.2, 0.8, 0.3, 0.1, 0.04])
+    prototype_labels = np.array([0, 0, 1, 1, 0, 1])
+
+    closest_pair = find_closest_prototypes_without_label(distances, prototype_labels)
+    print(closest_pair)  # Output: (1, 3)
