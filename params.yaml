@@ -27,11 +27,11 @@ train:
   hyperparams: # params of GridSearchCV constructor
     act_fun: 'sigmoid'
     sigma: 100 # the scaling factor if we use sigmoid function as act_fun
-    num_epochs: 10
+    num_epochs: 50
     num_prototypes: 1  # number of prototypes per class
     num_classes: 2
     prototype_init_type: 'random'  # 'random' or 'samples'
-    learning_rate_prototypes: 0.05
+    learning_rate_prototypes: 0.01
     learning_rate_lambda: 0.00001
 
   model_path: 'models/trained_models/model.pkl'
@@ -46,4 +46,5 @@ evaluate:
 
 explainability:
   ntops: 10 # number of top words for visualization
-  save_path: 'reports/top_words.csv'
+  table_path: 'reports/top_words.csv'
+  fig_path: 'reports/top_words.png'

@@ -11,6 +11,8 @@ models/model_d50_ps_93.19_forpaper.npz
 # C extensions
 *.so
 
+.idea/
+
 # Distribution / packaging
 .Python
 build/

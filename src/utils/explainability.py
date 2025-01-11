@@ -10,6 +10,7 @@ from src.utils.utils_embedding import (load_embedding_model,
                                        compute_document_embedding_full,
                                        preprocess_text, get_document_subspace_full)
 from src.AChorDSLVQ.model import AChorDSLVQModel
+from src.report.visualization_explainability import plot_top_words
 
 
 def compute_subspace_contribution(vh, s, word_frequencies, subspace_dim):
@@ -64,7 +65,7 @@ def compute_documbent_embedding(txt: str,
 
 
 def prediction_with_winners(doc_embedding: np.ndarray,
-                            achords_model: AChorDSLVQModel) -> Tuple[Dict, int]:
+                            achords_model: AChorDSLVQModel) -> Tuple[Dict, int, int]:
     """
     Find the closest two closest prototypes to a document
 
@@ -84,7 +85,7 @@ def prediction_with_winners(doc_embedding: np.ndarray,
     return {
         'closest_prototype': first_winner,
         'second_closest_prototype': second_winner,
-    }, achords_model.prototype_labels[first_winner['index']]
+    }, achords_model.prototype_labels[first_winner['index']], achords_model.prototype_labels[second_winner['index']]
 
 
 def get_word_importances(txt: str,
@@ -97,7 +98,7 @@ def get_word_importances(txt: str,
     doc_repr = compute_documbent_embedding(txt, embedding_model, subspace_dim)
 
     # Do prediction and find two closest prototypes
-    winners, prediction = prediction_with_winners(doc_repr['doc_embedding'], achords_model)
+    winners, pred, second_pred = prediction_with_winners(doc_repr['doc_embedding'], achords_model)
 
     word_importances_winners = {}
     for winner_type, dic in winners.items():
@@ -106,7 +107,7 @@ def get_word_importances(txt: str,
         txt_words_impact = achords_model.lambda_value * M * W
         word_importances_winners[winner_type] = txt_words_impact.sum(axis=1)
 
-    return word_importances_winners, doc_repr['words'], prediction
+    return word_importances_winners, doc_repr['words'], pred, second_pred
 
 
 def get_top_words(words,
@@ -130,18 +131,20 @@ def get_top_words(words,
         dic[w] = {
             'closest_prototype_score': positive_scores[i],
             'second_closest_prototype_score': negative_scores[i],
-            'prediction_score': diff[i],
+            'decision': diff[i],
         }
     logger.info(f'{num_of_top_words} top impactful words (on decision): ' + str({words[i]: diff[i] for i in sort_idx_diff[-1:-num_of_top_words:-1]}))
-    df = pd.DataFrame.from_dict(dic, orient='index')
-    return df
+
+    return pd.DataFrame.from_dict(dic, orient='index')
 
 
 
-def explain_decision(txt: str, config_path: str, address_prefix: str = "", label2class: Dict = None):
+def explain_decision(txt: str, config_path: str, address_prefix: str = "") -> None:
 
     with open(address_prefix + config_path) as conf_file:
         config = yaml.safe_load(conf_file)
+
+    label2class = {i: name for i, name in enumerate(config['evaluate']['target_names'])}
 
     logger = get_logger("EXPLAIN",
                         log_level=config['base']['log_level'],
@@ -156,21 +159,29 @@ def explain_decision(txt: str, config_path: str, address_prefix: str = "", label
     achords_model = load_model(filepath=address_prefix + config['train']['model_path'])
 
     # Compute words' importances
-    word_importances_for_winners, words, prediction = get_word_importances(txt,
-                                                                           embedding_model,
-                                                                           achords_model)
+    word_importances_for_winners, words, pred, second_pred = get_word_importances(txt,
+                                                                                  embedding_model,
+                                                                                  achords_model)
     if label2class:
-        logger.info(f"Predicted class: '{label2class[prediction]}', \t Predicted label: {prediction}.")
+        logger.info(f"Predicted class: '{label2class[pred]}', \t Predicted label: {pred}.")
     else:
-        logger.info(f"Predicted label: {prediction}")
+        logger.info(f"Predicted label: {pred}")
 
     top_words_df = get_top_words(words,
-                              word_importances_for_winners,
-                              config['explainability']['ntops'],
-                              logger)
+                                 word_importances_for_winners,
+                                 config['explainability']['ntops'],
+                                 logger)
 
-    top_words_df.to_csv(address_prefix + config['explainability']['save_path'])
-    logger.info(f"Top {config['explainability']['ntops']} words are save in '{address_prefix + config['explainability']['save_path']}'")
+    top_words_df.rename(columns={'closest_prototype_score' : label2class[pred] if label2class else pred,
+                        'second_closest_prototype_score': label2class[second_pred] if label2class else second_pred},
+                        inplace=True)
+
+    top_words_df.index.names = ['Words']
+    top_words_df.to_csv(address_prefix + config['explainability']['table_path'])
+    logger.info(f"Top {config['explainability']['ntops']} words are save in '{address_prefix + config['explainability']['table_path']}'")
+
+    plot_top_words(top_words_df, address_prefix + config['explainability']['fig_path'])
+    logger.info(f"The visualization of {config['explainability']['ntops']} words are save in '{address_prefix + config['explainability']['fig_path']}'")
 
 
 
@@ -178,9 +189,8 @@ if __name__ == '__main__':
     df = pd.read_csv('../../data/raw/dataset.csv')
     corpus = df['text'].tolist()
 
-    txt = corpus[3]
+    txt = corpus[1]
 
     explain_decision(txt,
                      config_path='params.yaml',
-                     address_prefix="../../",
-                     label2class={0: 'non-housing', 1: 'housing'})
+                     address_prefix="../../")
