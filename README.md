@@ -1,2 +1,2 @@
 # text-classification-AChorDS-LVQ
-This is a repository for text classification using AChorDS-LVQ (it will be completed in a few days).
+This is a repository containing the pipeline for text classification using AChorDS-LVQ. This uses DVC for pipeline creation.
