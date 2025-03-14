@@ -95,8 +95,21 @@ dvc push
 ## Contributions
 Feel free to fork this repository and submit pull requests with improvements!
 
-## License
-This project is licensed under the [MIT License](LICENSE).
+## Reference:
+
+When citing our work, please refer to the following article:
+
+`
+@article{mohammadi2024prototype,
+  title={A prototype-based model for set classification},
+  author={Mohammadi, Mohammad and Ghosh, Sreejita},
+  journal={arXiv preprint arXiv:2408.13720},
+  year={2024}
+}
+`
+
+Please use this article as the primary reference for our methodology and approach. If you need further details or clarification, don't hesitate to reach out.
+
 
 ---
 ### Need Help?
